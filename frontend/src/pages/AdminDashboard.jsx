@@ -8,7 +8,7 @@ const AdminDashboard = () => {
 
   const fetchReports = async () => {
     try {
-      const { data } = await api.get("/reports/admin/reports");
+      const { data } = await api.get("/houses/admin/reported-houses");
       setReports(data);
     } catch (error) {
       console.error(error);
@@ -22,7 +22,7 @@ const AdminDashboard = () => {
   const handleDeleteHouse = async (houseId) => {
     if (!window.confirm("Are you sure you want to delete this house?")) return;
     try {
-      await api.delete(`/reports/admin/reports/${houseId}`);
+      await api.delete(`/houses/admin/reported-houses/${houseId}`);
       fetchReports();
     } catch (error) {
       console.error(error);
@@ -47,11 +47,11 @@ const AdminDashboard = () => {
               <h2 className="font-bold text-lg">{report.house?.title}</h2>
               <p className="text-gray-600 text-sm">📍 {report.house?.location}</p>
               <p className="text-gray-600 text-sm">
-                🚩 Reported by: <span className="font-semibold">{report.reportBy?.name}</span>{" "}
-                <span className="text-gray-400">({report.reportBy?.email})</span>
+                🚩 Total reports: <span className="font-semibold">{report.reportCount || 0}</span>
               </p>
               <div className="bg-red-50 border border-red-200 rounded p-2 text-sm text-red-700">
-                <strong>Reason:</strong> {report.reason}
+                <strong>Recent reasons:</strong>{" "}
+                {report.reasons?.length ? report.reasons.join(", ") : "No reason provided"}
               </div>
               <button
                 onClick={() => handleDeleteHouse(report.house?._id)}
