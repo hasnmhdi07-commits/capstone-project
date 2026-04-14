@@ -8,6 +8,10 @@ const {
   updateHouse,
   deleteHouse,
   updateHouseStatus,
+  reportHouse,
+  getReportedHouses,
+  deleteReportedHouseByAdmin,
+  getAdminDashboard,
 } = require("../controllers/houseController");
 const { protect } = require("../middleware/authMiddleware");
 const { authorizeRoles } = require("../middleware/roleMiddleware");
@@ -32,6 +36,25 @@ router.get("/", getHouses);
 // FIX: /my must be declared BEFORE /:id so it is not captured by the dynamic route.
 // Returns all of the logged-in owner's houses regardless of house_status.
 router.get("/my", protect, authorizeRoles("owner"), getMyHouses);
+router.get(
+  "/admin/reported-houses",
+  protect,
+  authorizeRoles("admin"),
+  getReportedHouses
+);
+router.delete(
+  "/admin/reported-houses/:id",
+  protect,
+  authorizeRoles("admin"),
+  deleteReportedHouseByAdmin
+);
+router.get("/admin/dashboard", protect, authorizeRoles("admin"), getAdminDashboard);
+router.post(
+  "/:id/report",
+  protect,
+  authorizeRoles("user", "owner", "admin"),
+  reportHouse
+);
 
 router.get("/:id", getHouseById);
 
