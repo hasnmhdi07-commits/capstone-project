@@ -229,23 +229,48 @@ exports.getAdminDashboard = async (req, res) => {
       { $group: { _id: "$house_status", count: { $sum: 1 } } },
     ]);
 
-    const recentReportedHouses = await House.find({ "reports.0": { $exists: true } })
-      .sort({ "reports.createdAt": -1 })
-      .limit(10)
-      .select("title location rent reports");
+    const reportAggregation = await House.aggregate([
+      { $match: { "reports.0": { $exists: true } } },
+      {
+        $project: {
+          title: 1,
+          location: 1,
+          rent: 1,
+          reportCount: { $size: "$reports" },
+          latestReportAt: { $max: "$reports.createdAt" },
+          reports: 1,
+        },
+      },
+      { $sort: { latestReportAt: -1 } },
+      { $limit: 10 },
+    ]);
 
-    const recentReports = recentReportedHouses.map((house) => {
-      const latest = house.reports[house.reports.length - 1];
+    const recentReports = reportAggregation.map((house) => {
+      const latest = (house.reports || []).sort(
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+      )[0];
       return {
         houseId: house._id,
         title: house.title,
         location: house.location,
         rent: house.rent,
-        reportCount: house.reports.length,
+        reportCount: house.reportCount || 0,
         latestReason: latest?.reason || "",
         latestReportAt: latest?.createdAt || null,
       };
     });
+
+    const totalReportEntries = await House.aggregate([
+      { $project: { count: { $size: "$reports" } } },
+      { $group: { _id: null, total: { $sum: "$count" } } },
+    ]);
+
+    const newestListing = await House.findOne().sort({ createdAt: -1 }).select("createdAt");
+    const monitoring = {
+      totalReports: totalReportEntries[0]?.total || 0,
+      cleanListings: Math.max(totalHouses - reportedHouses, 0),
+      latestListingAt: newestListing?.createdAt || null,
+    };
 
     return res.json({
       users: {
@@ -264,6 +289,7 @@ exports.getAdminDashboard = async (req, res) => {
         open: reportedHouses,
         recent: recentReports,
       },
+      monitoring,
     });
   } catch (error) {
     return res.status(500).json({ message: error.message });
