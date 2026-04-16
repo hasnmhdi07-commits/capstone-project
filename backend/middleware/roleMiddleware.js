@@ -1,9 +1,17 @@
-const authorizeRoles=(...roles)=>{
-    return (req,res,next)=>{
-        if(!roles.includes(req.user.role)){
-            return res.status(403).json({message:`Role '${req.user.role}' not allowed`})
-        }
-        next()
+const authorizeRoles = (...roles) => {
+  const normalizedRoles = roles.map((role) => String(role).trim().toLowerCase());
+
+  return (req, res, next) => {
+    const userRole = String(req.user?.role || "")
+      .trim()
+      .toLowerCase();
+
+    if (!normalizedRoles.includes(userRole)) {
+      return res.status(403).json({ message: `Role '${req.user?.role}' not allowed` });
     }
-}
-module.exports={authorizeRoles}
+
+    next();
+  };
+};
+
+module.exports = { authorizeRoles };

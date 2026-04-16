@@ -7,9 +7,11 @@ const AdminDashboard = () => {
   const [stats, setStats] = useState(null);
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const fetchDashboardData = async () => {
     setLoading(true);
+    setError("");
     try {
       const [dashboardRes, reportsRes] = await Promise.all([
         api.get("/houses/admin/dashboard"),
@@ -19,6 +21,7 @@ const AdminDashboard = () => {
       setReports(reportsRes.data);
     } catch (error) {
       console.error(error);
+      setError(error.response?.data?.message || "Failed to load admin reports");
     } finally {
       setLoading(false);
     }
@@ -48,6 +51,11 @@ const AdminDashboard = () => {
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-2">Admin Dashboard</h1>
       <p className="text-gray-600 mb-6">Monitoring + reported listings moderation</p>
+      {error ? (
+        <div className="mb-4 bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 text-sm">
+          {error}
+        </div>
+      ) : null}
 
       {loading ? (
         <div className="bg-white border rounded-lg p-8 text-center text-gray-500">Loading dashboard...</div>
