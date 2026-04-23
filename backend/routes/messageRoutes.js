@@ -1,6 +1,13 @@
 const express = require("express");
+
 const router = express.Router();
-const { sendMessage, getReceivedMessages, getHouseMessages, markAsRead, deleteMessage } = require("../controllers/messageController");
+const { 
+  sendMessage, 
+  getReceivedMessages, 
+  getHouseMessages, 
+  markAsRead, 
+  deleteMessage 
+} = require("../controllers/messageController");
 const { protect } = require("../middleware/authMiddleware");
 
 // Send message to house owner (user route)

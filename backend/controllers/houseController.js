@@ -1,28 +1,5 @@
 const House = require("../models/house");
 
-// Get all available houses (public - no auth required)
-exports.getHouses = async (req, res) => {
-  console.log("GET /api/houses called with query:", req.query);
-  const { location, minRent, maxRent, rooms } = req.query;
-
-  // FIX: Only filter by "available" for the public listing.
-  let query = { house_status: "available" };
-  if (location) query.location = { $regex: location, $options: "i" };
-  if (minRent || maxRent) {
-    query.rent = {};
-    if (minRent) query.rent.$gte = Number(minRent);
-    if (maxRent) query.rent.$lte = Number(maxRent);
-  }
-  if (rooms) query.rooms = Number(rooms);
-
-  try {
-    const houses = await House.find(query).populate("owner", "name email");
-    res.json(houses);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
 // FIX: New endpoint - get the logged-in owner's OWN houses (all statuses)
 // This replaces the client-side filter that was missing rented houses.
 exports.getMyHouses = async (req, res) => {
@@ -138,3 +115,4 @@ exports.updateHouseStatus = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+

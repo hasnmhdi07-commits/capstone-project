@@ -442,7 +442,7 @@ function ReportModal({ houseId, reason, setReason, submitting, setSubmitting, on
     setSubmitting(true);
     try {
       const api = (await import("../services/api")).default;
-      await api.post("/reports", { houseId, reason });
+      await api.post(`/houses/${houseId}/report`, { reason });
       alert("Report submitted. Thank you!");
       onClose();
     } catch (err) {

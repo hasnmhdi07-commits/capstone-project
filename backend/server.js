@@ -12,7 +12,6 @@ const { Server } = require("socket.io");
 const authRoutes = require("./routes/authRoutes");
 const houseRoutes = require("./routes/houseRoutes");
 const favoriteRoutes = require("./routes/favoriteRoutes");
-const reportRoutes = require("./routes/reportRoutes");
 const messageRoutes = require("./routes/messageRoutes");
 
 const app = express();
@@ -96,7 +95,6 @@ io.on("connection", (socket) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/houses", favoriteRoutes);
 app.use("/api/houses", houseRoutes);
-app.use("/api/reports", reportRoutes);
 app.use("/api/messages", messageRoutes);
 
 app.get("/", (req, res) => {
